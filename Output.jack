@@ -13,6 +13,49 @@
  * character position on the screen is indexed (0,0). A cursor, implemented
  * as a small filled square, indicates where the next character will be displayed.
  */
+
+
+/*
+Output
+The Output class is a library of functions for displaying characters. The class
+assumes a character-oriented screen consisting of 23 rows (indexed 0 … 22,
+top to bottom) of 64 characters each (indexed 0 … 63, left to right). The
+top-left character location on the screen is indexed (0,0). A visible cursor,
+implemented as a small filled square, indicates where the next character
+will be displayed. Each character is displayed by rendering on the screen a
+rectangular image, 11 pixels high and 8 pixels wide (which includes
+margins for character spacing and line spacing). The collection of all the
+character images is called a font.
+Font implementation: The design and implementation of a font for the
+Hack character set (appendix 5) is a drudgery, combining artistic judgment
+and rote implementation work. The resulting font is a collection of ninetyfive
+rectangular bitmap images, each representing a printable character.
+Fonts are normally stored in external files that are loaded and used by the
+character-drawing package, as needed. In Nand to Tetris, the font is
+embedded in the OS Output class. For each printable character, we define an
+array that holds the character’s bitmap. The array consists of 11 elements,
+each corresponding to a row of 8 pixels. Specifically, we set the value of
+each array entry j to an integer value whose binary representation (bits)
+codes the 8 pixels appearing in the j-th row of the character’s bitmap. We
+also define a static array of size 127, whose index values 32 … 126
+correspond to the codes of the printable characters in the Hack character set
+(entries 0 … 31 are not used). We then set each array entry i of that array to
+the 11-entry array that represents the bitmap image of the character whose
+character code is i (did we mention drudgery?).
+The project 12 materials include a skeletal Output class containing Jack
+code that carries out all the implementation work described above. The
+given code implements the ninety-five-character font, except for one
+character, whose design and implementation is left as an exercise. This code
+can be activated by the Output.init function, which can also initialize the
+cursor.
+printChar: Displays the character at the cursor location and advances the
+cursor one column forward. To display a character at location (row,col),
+where we write the character’s bitmap onto the box
+of pixels ranging from and from
+printString: Can be implemented using a sequence of printChar calls.
+printInt: Can be implemented by converting the integer to a string and then
+printing the string.
+*/
 class Output {
 
     // Character map for displaying characters

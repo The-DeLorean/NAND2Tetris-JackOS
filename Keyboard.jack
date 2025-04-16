@@ -5,10 +5,29 @@
 /**
  * A library for handling user input from the keyboard.
  */
+
+/*
+The Hack computer memory organization (see section 5.2.6) specifies that
+the keyboard memory map is a single 16-bit memory register located at
+address 24576.
+
+keyPressed: Can be implemented easily using Memory.peek ().
+readChar, readString: Can be implemented by following the algorithms in
+figure 12.10.
+readInt: Can be implemented by reading a string and converting it into an int
+value using a String method.
+
+*/
 class Keyboard {
+
+    //create cursor integer variable to track the position of the cursor
+    field int cursor;
 
     /** Initializes the keyboard. */
     function void init() {
+        //initialize cursor to be 0
+        let cursor = 0;
+        return;
     } 
 
     /**
@@ -16,7 +35,7 @@ class Keyboard {
      * if no key is currently pressed, returns 0.
      *
      * Recognizes all ASCII characters, as well as the following keys:
-     * new line = 128 = String.newline()
+     * newline = 128 = String.newline()
      * backspace = 129 = String.backspace()
      * left arrow = 130
      * up arrow = 131
@@ -32,24 +51,84 @@ class Keyboard {
      * F1 - F12 = 141 - 152
      */
     function char keyPressed() {
+        //use Memory.peek at address 24576 to get the current key press
+        return Memory.peek(24576);
     }
 
     /**	Waits until a key is pressed on the keyboard and released,
      *  then echoes the key to the screen, and returns the character 
      *  of the pressed key. */
     function char readChar() {
+        var char c;
+        //display the cursor
+        //wait until a key is pressed
+        while(Keyboard.keyPressed() = 0)
+        {
+            //do nothing just loop
+        }
+        //once a key has been pressed and we are out of the loop
+        //set c to the current value pressed by the keyboard
+        let c = Keyboard.keyPressed();
+
+        //advance the cursor
+        let cursor = cursor + 1;
+
+        return c;
     }
 
     /**	Displays the message on the screen, reads from the keyboard the entered
      *  text until a newline character is detected, echoes the text to the screen,
      *  and returns its value. Also handles user backspaces. */
     function String readLine(String message) {
+        var char c;
+        var String str;
+        //display the message
+        do Output.printString(message); 
+        //print out message
+        
+        let str = String.new(0);
+
+    
+
+  
+
+        
+        //repeat the loop until new line is entered
+        //add/remove each character until newline
+        while(true)
+        {
+            //store character
+            
+            //set c to readChar() to store current character
+            let c  = Keyboard.readChar();
+            
+            //if c is a newline character return the str
+            if(c = 128)
+            {
+                //display new line
+                return str;
+            }
+            //if c is a blankspace
+            if(c = 129)
+            {
+                //remove the last character from str
+                do str.eraseLastChar();
+
+                //move the cursor back
+                let cursor = cursor - 1;
+            }
+            else
+            {
+                //move the cursor forward
+                let cursor = cursor + 1;
+
+                do str.appendChar(c);
+                //print character to the screen
+                do Output.printChar(c);
+            }
+        }
+        return str;
+
     }   
 
-    /** Displays the message on the screen, reads from the keyboard the entered
-     *  text until a newline character is detected, echoes the text to the screen,
-     *  and returns its integer value (until the first non-digit character in the
-     *  entered text is detected). Also handles user backspaces. */
-    function int readInt(String message) {
-    }
 }
