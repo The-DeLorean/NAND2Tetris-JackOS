@@ -2,7 +2,6 @@
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
 // File name: projects/12/Output.jack
-
 /**
  * A library of functions for writing text on the screen.
  * The Hack physical screen consists of 512 rows of 256 pixels each.
@@ -14,17 +13,66 @@
  * character position on the screen is indexed (0,0). A cursor, implemented
  * as a small filled square, indicates where the next character will be displayed.
  */
+
+
+/*
+Output
+The Output class is a library of functions for displaying characters. The class
+assumes a character-oriented screen consisting of 23 rows (indexed 0 … 22,
+top to bottom) of 64 characters each (indexed 0 … 63, left to right). The
+top-left character location on the screen is indexed (0,0). A visible cursor,
+implemented as a small filled square, indicates where the next character
+will be displayed. Each character is displayed by rendering on the screen a
+rectangular image, 11 pixels high and 8 pixels wide (which includes
+margins for character spacing and line spacing). The collection of all the
+character images is called a font.
+Font implementation: The design and implementation of a font for the
+Hack character set (appendix 5) is a drudgery, combining artistic judgment
+and rote implementation work. The resulting font is a collection of ninetyfive
+rectangular bitmap images, each representing a printable character.
+Fonts are normally stored in external files that are loaded and used by the
+character-drawing package, as needed. In Nand to Tetris, the font is
+embedded in the OS Output class. For each printable character, we define an
+array that holds the character’s bitmap. The array consists of 11 elements,
+each corresponding to a row of 8 pixels. Specifically, we set the value of
+each array entry j to an integer value whose binary representation (bits)
+codes the 8 pixels appearing in the j-th row of the character’s bitmap. We
+also define a static array of size 127, whose index values 32 … 126
+correspond to the codes of the printable characters in the Hack character set
+(entries 0 … 31 are not used). We then set each array entry i of that array to
+the 11-entry array that represents the bitmap image of the character whose
+character code is i (did we mention drudgery?).
+The project 12 materials include a skeletal Output class containing Jack
+code that carries out all the implementation work described above. The
+given code implements the ninety-five-character font, except for one
+character, whose design and implementation is left as an exercise. This code
+can be activated by the Output.init function, which can also initialize the
+cursor.
+printChar: Displays the character at the cursor location and advances the
+cursor one column forward. To display a character at location (row,col),
+where we write the character’s bitmap onto the box
+of pixels ranging from and from
+printString: Can be implemented using a sequence of printChar calls.
+printInt: Can be implemented by converting the integer to a string and then
+printing the string.
+*/
 class Output {
 
     // Character map for displaying characters
     static Array charMaps; 
-	// Cursor coordinates
-	static int cursorI, cursorJ; 
+
+    // static x and y positions to hold the top left corner of the current character/where we are on the screen
+    static int cursorRow;
+    static int cursorColumn;
 
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
-		do Output.initMap();
-		return;
+        //initialize the initMap Function
+        do Output.initMap();
+
+        let cursorRow = 0;
+        let cursorColumn = 0;
+        return;
     }
 
     // Initializes the character map array
@@ -75,7 +123,7 @@ class Output {
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
 
-        do Output.create(65,12,30,51,51,63,51,51,51,51,0,0); // A ** TO BE FILLED **
+        do Output.create(65,12,30,51,51,63,51,51,51,51,0,0);  // A
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -141,15 +189,15 @@ class Output {
         do Output.create(125,7,12,12,12,56,12,12,12,7,0,0);    // }
         do Output.create(126,38,45,25,0,0,0,0,0,0,0,0);        // ~
 
-		return;
+	return;
     }
 
     // Creates the character map array of the given character index, using the given values.
     function void create(int index, int a, int b, int c, int d, int e,
                          int f, int g, int h, int i, int j, int k) {
-		var Array map;
+	var Array map;
 
-		let map = Array.new(11);
+	let map = Array.new(11);
         let charMaps[index] = map;
 
         let map[0] = a;
@@ -171,85 +219,104 @@ class Output {
     // If the given character is invalid or non-printable, returns the
     // character map of a black square.
     function Array getMap(char c) {
+        //if invalid range
         if ((c < 32) | (c > 126)) {
             let c = 0;
         }
+
         return charMaps[c];
     }
 
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
-	
-		if((i < 0) | (j < 0) | (i > 22) | (j > 63)){
-			do Sys.error(20);
+        //if the cursor coordinates are out of bounds, do not move cursor
+        if((i < 0) | (j < 0) | (i > 22) | (j > 63)){
+			return;
 		}
-		let cursorI = i;
-		let cursorJ = j;
-		return;
+        //set x to the value stored in i
+        let cursorRow = i;
+        //set y to the value stored in j
+        let cursorColumn = j;
+
+        //fill the character there with a blank
+        //do Output.printInt(charMaps(32)); 
+        return;
     }
 
     /** Displays the given character at the cursor location,
      *  and advances the cursor one column forward. */
     function void printChar(char c) {
-		var Array glyph; 
-		var int i, j, pixelI, pixelJ;
-		let glyph = Output.getMap(c);
-		while(i < 11){
-			let pixelI = cursorI * 11 + i;
-			let j = 0;
-			while(j < 8){
-				let pixelJ = cursorJ * 8 + j;
-				do Screen.setColor(true);
-				do Screen.drawPixel(pixelJ, pixelI);
-				let j = j + 1;
-			}
-			let i = i + 1;
-		}
-		if(cursorJ < 63){
-			let cursorJ = cursorJ + 1;
-		} else {
-			do Output.println();
-		}
-		return;
+        //var map to get the array from charMap
+        var Array map;
+        var int i, j, pixelColumn, pixelRow;
+        let map = Output.getMap(c);
+
+        //iterate over the indexes in map and print to screen
+        let i = 0;
+
+        while (i < 11) {    //row
+            let j = 0;
+            
+            let pixelRow = (cursorRow * 11) + i;
+
+            while (j < 8)   //columns
+            {
+                let pixelColumn = (cursorColumn * 8) + j;
+                do Screen.setColor(true);
+				do Screen.drawPixel(pixelRow, pixelColumn);
+                let j = j + 1;
+            }
+
+            let i = i + 1;
+        }
+        //advance the cursor location
+        //check to make sure we are not at the end of the row, if we are move to the next row and rest cursor column
+        if(cursorColumn < 64)
+        {
+            let cursorColumn = cursorColumn + 1;
+        }
+        else 
+        {
+            do Output.println();
+        }
+        return;
     }
 
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
-		var int i;
-		let i = 0;
-		while(i < s.length()){
-			do Output.printChar(s.charAt(i));
-			let i = i + 1;
-		}
-		return;
+        return;
     }
 
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
-    function void printInt(int value) {
-		var String s;
-		let s = String.new(6);
-		do s.setInt(value);
-		do Output.printString(s);
-		return;
+    function void printInt(int i) {
+        var String s;
+        //let s = String.new(1);
+        //let s = String.setInt(i);
+        //do Output.printString(s);
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
-		if(cursorI < 23){
-			let cursorJ = 0;
-			let cursorI = cursorI + 1;
-		}
-		return;
+
+        //check to make sure we can go down a row
+        if(cursorRow < 23)
+        {
+            let cursorColumn = 0;
+            let cursorRow = cursorRow + 1;
+        }
+        return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
-		if(cursorJ > 0){
-			let cursorJ = cursorJ - 1;
-		}
-		return;
+        if(cursorColumn > 0)
+        {
+            let cursorColumn = cursorColumn - 1;
+        }
+        return;
     }
 }
