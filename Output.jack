@@ -61,8 +61,18 @@ class Output {
     // Character map for displaying characters
     static Array charMaps; 
 
+    // static x and y positions to hold the top left corner of the current character/where we are on the screen
+    static int cursorColumn;
+    static int cursorRow;
+
     /** Initializes the screen, and locates the cursor at the screen's top-left. */
     function void init() {
+        //initialize the initMap Function
+        do Output.initMap();
+
+        let cursorRow = 0;
+        let cursorColumn = 0;
+        return;
     }
 
     // Initializes the character map array
@@ -113,7 +123,7 @@ class Output {
         do Output.create(64,30,51,51,59,59,59,27,3,30,0,0);  // @
         do Output.create(63,30,51,51,24,12,12,0,12,12,0,0);  // ?
 
-        do Output.create(65,0,0,0,0,0,0,0,0,0,0,0);          // A ** TO BE FILLED **
+        do Output.create(65,24,60,102,195,195,255,195,195,195,0,0);  // A
         do Output.create(66,31,51,51,51,31,51,51,51,31,0,0); // B
         do Output.create(67,28,54,35,3,3,3,35,54,28,0,0);    // C
         do Output.create(68,15,27,51,51,51,51,51,27,15,0,0); // D
@@ -209,37 +219,101 @@ class Output {
     // If the given character is invalid or non-printable, returns the
     // character map of a black square.
     function Array getMap(char c) {
+        //if invalid range
         if ((c < 32) | (c > 126)) {
             let c = 0;
         }
+
         return charMaps[c];
     }
 
     /** Moves the cursor to the j-th column of the i-th row,
      *  and erases the character displayed there. */
     function void moveCursor(int i, int j) {
+        //set row to the value stored in i
+        let cursorRow = i;
+        //set y to the value stored in j
+        let cursorColumn = j;
+        return;
     }
 
-    /** Displays the given character at the cursor location,
-     *  and advances the cursor one column forward. */
-    function void printChar(char c) {
+  /** Displays the given character at the cursor location,
+ *  and advances the cursor one column forward. */
+function void printChar(char c) {
+    var Array map;
+    var int pixelRow, pixelColumn;
+    var int i, j;
+
+    let map = Output.getMap(c); // get the bitmap for the char
+
+    let i = 0;
+    while (i < 11) { // rows (height)
+        let j = 0;
+        while (j < 8) { // columns (width)
+            //if (Math.getBit(map[i], j) = 1) {
+                
+                let pixelColumn = cursorColumn * 8 + j;
+                do Screen.setColor(true);
+                do Screen.drawPixel(pixelRow, pixelColumn);
+            //}
+            let j = j + 1;
+        }
+        if(column <= 64)
+        {
+            let cursorRow =  cursorRow + 1;
+            let cursorColumn = 0;
+        }
+        let pixelRow = cursorRow;
+
+        let i = i + 1;
     }
+
+    let cursorRow = cursorRow + 1; // advance to next character column
+    return;
+}
+
 
     /** displays the given string starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printString(String s) {
+        //iterator decleration
+        var int i;
+        let i = 0;
+        
+        //loop over the indexes in the string and print each character to the string
+        while(i < s.length())
+        {
+            //chat printChar
+            do Output.printChar(s.charAt(i)]);
+            i = i + 1;
+        }
+        return;
     }
 
     /** Displays the given integer starting at the cursor location,
      *  and advances the cursor appropriately. */
     function void printInt(int i) {
+        return;
     }
 
     /** Advances the cursor to the beginning of the next line. */
     function void println() {
+        //check to see if we are at the bottom of the screen
+        if(cursorRow < 23){
+            let cursorRow = row + 1;
+            let cursorColumn = 0;
+        }
+        return;
     }
 
     /** Moves the cursor one column back. */
     function void backSpace() {
+        //check if we can move back a space
+        if(cursorRow > 0 )
+        {
+            //move back one column and set that spot to blank
+            cursorColumn = cursorColumn - 1;
+        }
+        return;
     }
 }

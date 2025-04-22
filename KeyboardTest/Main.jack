@@ -8,6 +8,7 @@ class Main {
 
     /** Gets input from the user and verifies its contents. */
     function void main() {
+
     	var char c, key;
     	var String s;
     	var int i;

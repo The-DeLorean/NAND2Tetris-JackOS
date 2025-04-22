@@ -10,18 +10,66 @@ class Sys {
 
     /** Performs all the initializations required by the OS. */
     function void init() {
+        //intialize each component of the operating system within the Sys init class
+        //call memory initialize class
+		do Memory.init();
+        //call memory initialize class
+		do Math.init();
+        //call memory initialize class
+		do Keyboard.init();
+        //call screen initialize class
+		do Screen.init();
+        //call output initialize class
+		do Output.init();
+        //call the main function to run the operating system
+        //must include otherwise program will halt by default
+		do Main.main();
+
+        //once the program has run, halt the system.
+		do Sys.halt();
+
+        return;
     }
 
     /** Halts the program execution. */
+    //enter an infinite loop
     function void halt() {
+        //infinite loop to halt the program forever
+        while(true){}
+        return;
     }
 
-    /** Waits approximately duration milliseconds and returns.  */
+    /** function that takes in an integer in ms and halts the system for that long by entering a for loop*/
     function void wait(int duration) {
+        //iterators to pause the system for duration length of time
+        var int i,j;
+
+        //instantiate i to 0
+        let i=0;
+        //for the outer loop, loop while i is less than the parameter
+        while(i<duration) {
+            //instantiate j to 0
+            let j=0;
+
+            //75 is an arbitrary number that results in the system pausing for roughly 2 seconds using the online VM emulator
+            while (j<75) {
+                let j=j+1;  //increment
+            }
+            let i=i+1;  //increment
+        }
+
+        return;
     }
 
     /** Displays the given error code in the form "ERR<errorCode>",
      *  and halts the program's execution. */
     function void error(int errorCode) {
+        //print the ERR indicator that this is an error message
+		do Output.printString("ERR");
+        //print the paramter that contains the error code
+		do Output.printInt(errorCode);
+        //pause all execution on the system by calling the halt method.
+		do Sys.halt();
+		return;
     }
 }
