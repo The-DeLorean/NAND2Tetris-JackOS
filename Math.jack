@@ -15,6 +15,7 @@ class Math {
 
     // Initializes the Math library.
     function void init() {
+        return;
     }
 
     /** Returns the product of x and y. 
@@ -22,28 +23,148 @@ class Math {
      *  in an expression, it handles it by invoking this method. 
      *  Thus, in Jack, x * y and Math.multiply(x,y) return the same value. */
     function int multiply(int x, int y) {
+        var int sum, shiftedX, currentY, negative;
+
+        let sum = 0;
+        let shiftedX = x;
+        let currentY = y;
+
+        // Handle negative values
+        let negative = 0;
+
+        if (x < 0) {
+            let shiftedX = 0 - shiftedX;
+            let negative = negative + 1;
+        }
+
+        if (y < 0) {
+            let currentY = 0 - currentY;
+            let negative = negative + 1;
+        }
+
+        while (currentY > 0) {
+            // If currentY % 2 == 1 (i.e., currentY is odd)
+            if ((currentY - ((currentY / 2) + (currentY / 2))) = 1) {
+                let sum = sum + shiftedX;
+            }
+
+            // Double shiftedX: shiftedX = shiftedX * 2
+            let shiftedX = shiftedX + shiftedX;
+
+            // Halve currentY: currentY = currentY / 2
+            let currentY = currentY / 2;
+        }
+
+        if (negative = 1) {
+            let sum = 0 - sum;
+        }
+
+        return sum;
     }
+
 
     /** Returns the integer part of x / y.
      *  When a Jack compiler detects the division operator '/'
      *  an an expression, it handles it by invoking this method.
      *  Thus, x/y and Math.divide(x,y) return the same value. */
     function int divide(int x, int y) {
+        var int q, twoY, twoQ, product;
+
+        // Base case
+        if (y > x) {
+            return 0;
+        }
+
+        // twoY = y * 2
+        let twoY = Math.multiply(y, 2);
+
+        // Recursive call
+        let q = Math.divide(x, twoY);
+
+        // 2 * q
+        let twoQ = Math.multiply(q, 2);
+
+        // 2 * q * y
+        let product = Math.multiply(twoQ, y);
+
+        // if (x - product) < y
+        if ((x-product) < y) {
+            return twoQ;
+        } else {
+            return twoQ + 1;
+        }
     }
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
+        var int i, y, j, powerOfTwo, maxBitLength, square;
+
+        // Step 1: Calculate the maximum bit length of x
+        let maxBitLength = 0;
+        let j = x;
+        while (j > 0) {
+            let maxBitLength = maxBitLength + 1;
+            let j = Math.divide(j, 2);  // Divide by 2 to count the bits
+        }
+
+        // Step 2: Start with j = maxBitLength - 1
+        let y = 0;
+        let j = (maxBitLength - 1);
+
+        // Step 3: Loop to compute sqrt(x)
+        while (0 < j) {
+            // Compute powerOfTwo = 2^j using repeated multiplication
+            let powerOfTwo = 1;
+            let i = 0;
+            while (i < j) {
+                let powerOfTwo = Math.multiply(powerOfTwo, 2);  // Multiply by 2 to get 2^j
+                let i = i + 1;
+            }
+
+            // Check if (y + 2^j)^2 <= x
+            let square = Math.multiply((y+powerOfTwo), (y+powerOfTwo)); // (y + 2^j)^2
+            if ((square - x) < 0) {  // Equivalent to (square <= x)
+                let y = (y+powerOfTwo);  // Add 2^j to y if the condition is met
+            }
+
+            // Move to the next lower bit
+            let j = (j-1);
+        }
+
+        return y;
     }
 
-    /** Returns the greater value. */
+    // Returns the maximum of two integers
     function int max(int a, int b) {
+        var int result;
+        if (a > b) {
+            let result = a;
+        } else {
+            let result = b;
+        }
+        return result;
     }
 
-    /** Returns the smaller value. */
+    // Returns the minimum of two integers
     function int min(int a, int b) {
+        var int result;
+        if (a < b) {
+            let result = a;
+        } else {
+            let result = b;
+        }
+        return result;
     }
 
-    /** Returns the absolute value of x. */
-    function int abs(int x) {
+    // Returns the absolute value of an integer
+    function int abs(int a) {
+        var int result;
+        if (a < 0) {
+            let result = (0 - a);  // result = -a (because a is negative)
+        } else {
+            let result = a;  // if a is already positive, return a
+        }
+        return result;
     }
+
 }
