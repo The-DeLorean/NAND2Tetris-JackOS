@@ -15,28 +15,18 @@ class Math {
 
     // Initializes the Math library.
     function void init() {
+        var int i;
         // In Hack computer, we use 16 bits for integers
         let n = 16;
         
         // Initialize powersOfTwo array with known values
-        let powersOfTwo = Array.new(n);
-        let powersOfTwo[0] = 1;      // 2^0 = 1
-        let powersOfTwo[1] = 2;      // 2^1 = 2
-        let powersOfTwo[2] = 4;      // 2^2 = 4
-        let powersOfTwo[3] = 8;      // 2^3 = 8
-        let powersOfTwo[4] = 16;     // 2^4 = 16
-        let powersOfTwo[5] = 32;     // 2^5 = 32
-        let powersOfTwo[6] = 64;     // 2^6 = 64
-        let powersOfTwo[7] = 128;    // 2^7 = 128
-        let powersOfTwo[8] = 256;    // 2^8 = 256
-        let powersOfTwo[9] = 512;    // 2^9 = 512
-        let powersOfTwo[10] = 1024;  // 2^10 = 1024
-        let powersOfTwo[11] = 2048;  // 2^11 = 2048
-        let powersOfTwo[12] = 4096;  // 2^12 = 4096
-        let powersOfTwo[13] = 8192;  // 2^13 = 8192
-        let powersOfTwo[14] = 16384; // 2^14 = 16384
-        let powersOfTwo[15] = 32767; // 2^15 = 32767 (not exactly 2^15 due to two's complement limitation)
-        
+		let powersOfTwo = Array.new(16);
+		let powersOfTwo[0] = 1;
+		let i = 1;
+		while(i < 16){
+		    let powersOfTwo[i] = powersOfTwo[i-1] +  powersOfTwo[i-1];
+			let i = i + 1;
+		}        
         return;
     }
 
@@ -174,39 +164,33 @@ class Math {
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-        var int result, j, temp, tempSquared;
-        
-        // Handle special cases
-        if (x < 0) {
-            do Sys.error(4); // Square root of negative number error
-            return 0;
-        }
-        
-        if (x = 0) {
-            return 0;
-        }
-        
-        // Start with result = 0
-        let result = 0;
-        
-        // Start from the highest relevant bit position
-        // For 16-bit integers, the square root won't exceed 2^8 (256)
-        let j = 7;
-        
-        while (j > -1) {
-            // Try setting the bit at position j
-            let temp = result + powersOfTwo[j];
-            let tempSquared = Math.multiply(temp, temp);
-            
-            // If temp² ≤ x, include this bit in the result
-            if (~(tempSquared > x)) {
-                let result = temp;
-            }
-            
-            let j = j - 1;
-        }
-        
-        return result;
+		var int start, end, mid, value;
+		if(x < 0){
+			do Sys.error(4);
+		}
+		if(x = 0){
+			return 0;
+		}
+		let start = 0;
+		let end = x;
+		while(start < end){
+			if(start = (end - 1)){
+				return start;
+			}
+			let mid = start + ((end - start)/2);
+			let value = mid * mid;
+			
+			if(value = x){
+				return mid;
+			} else {
+				if((value > x) | value < 0){
+					let end = mid;
+				} else {
+					let start = mid;
+				}
+			}
+		}
+		return mid;
     }
 
     /** Returns the maximum of two integers */
