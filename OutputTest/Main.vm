@@ -6,6 +6,9 @@ function Main.main 1
     call String.doubleQuote 0
     call String.appendChar 2
     pop temp 0
+    push constant 65
+    call Output.printChar 1
+    pop temp 0
     push constant 0
     push constant 63
     call Output.moveCursor 2
@@ -29,12 +32,6 @@ function Main.main 1
     pop temp 0
     push constant 65
     call Output.printChar 1
-    pop temp 0
-    push constant 1
-    call String.new 1
-    push constant 48
-    call String.appendChar 2
-    call Output.printString 1
     pop temp 0
     push constant 2
     push constant 0
