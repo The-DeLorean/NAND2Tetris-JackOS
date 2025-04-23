@@ -1,0 +1,147 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Keyboard.jack
+/**
+ * A library for handling user input from the keyboard.
+ */
+
+/*
+The Hack computer memory organization (see section 5.2.6) specifies that
+the keyboard memory map is a single 16-bit memory register located at
+address 24576.
+
+keyPressed: Can be implemented easily using Memory.peek ().
+readChar, readString: Can be implemented by following the algorithms in
+figure 12.10.
+readInt: Can be implemented by reading a string and converting it into an int
+value using a String method.
+
+*/
+class Keyboard {
+
+    //create cursor integer variable to track the position of the cursor
+    static int cursor;
+
+    /** Initializes the keyboard. */
+    function void init() {
+        //initialize cursor to be 0
+        let cursor = 0;
+        return;
+    } 
+
+    /**
+     * Returns the character of the currently pressed key on the keyboard;
+     * if no key is currently pressed, returns 0.
+     *
+     * Recognizes all ASCII characters, as well as the following keys:
+     * newline = 128 = String.newline()
+     * backspace = 129 = String.backspace()
+     * left arrow = 130
+     * up arrow = 131
+     * right arrow = 132
+     * down arrow = 133
+     * home = 134
+     * End = 135
+     * page up = 136
+     * page down = 137
+     * insert = 138
+     * delete = 139
+     * ESC = 140
+     * F1 - F12 = 141 - 152
+     */
+    //function to look at the value held at memory 24576 to store as the key
+    function char keyPressed() {
+        //use Memory.peek at address 24576 to get the current key press
+        return Memory.peek(24576);
+    }
+
+    /**	Waits until a key is pressed on the keyboard and released,
+     *  then echoes the key to the screen, and returns the character 
+     *  of the pressed key. */
+    function char readChar() {
+
+        //store the character read in from keyPressed method 
+        var char c;
+    
+        //wait until a key is pressed -- while no key has been pressed, loop and do nothing
+        while((Keyboard.keyPressed() = 0)){}
+        
+        //set c to current key press used KeyPressed method
+        let c = Keyboard.keyPressed();
+        
+        //wait for key release to prevent key from being logged multiple times.
+        while(~(Keyboard.keyPressed() = 0)){}
+
+        //if the character is a backspace and there is space to backspace, decrement cursor
+        if((Keyboard.keyPressed() = 129) & (cursor > 0))
+        {
+            let cursor = cursor - 1;
+        }
+        else
+        {
+            //else if newline, set cursor to 0
+            if(Keyboard.keyPressed() = 128)
+            {
+                do Output.println();
+            }
+            //if it is not a newline or a backspace, just increment the cursor
+            else
+            {
+                let cursor = cursor + 1;
+            }
+        }
+        //return the character read in
+        return c;
+    }
+
+    /**	Displays the message on the screen, reads from the keyboard the entered
+     *  text until a newline character is detected, echoes the text to the screen,
+     *  and returns its value. Also handles user backspaces. */
+    function String readLine(String message) {
+        //store the character read from the readChar method
+        var char c;
+
+        //store the string that will be built in the loop below and returned
+        var String str;
+		
+        //initialize the string to be able to store everything on the line
+		let str = String.new(64);
+
+        //display the message
+        do Output.printString(message); 
+		
+		//set c to readChar() to store current character
+		let c  = Keyboard.readChar();
+		
+		//loop while the key is not newline and we still have space on line
+        while (~(c=128) & (~(str.length() > 64)))
+		{
+			//if it is a backspace, call backspace
+			if(c = 129)
+			{
+                //check to make sure that a backspace can be performed and we are not at the front of the string
+                if(str.length() > 0)
+                {
+                    do Output.backSpace();
+                    do Output.printChar(32);
+                    do Output.backSpace();
+                    do str.eraseLastChar();
+                }
+			}
+            //not a newline or backspace, print the character to the screen and add to the string.
+			else
+			{
+                do Output.printChar(c);
+                do str.appendChar(c);
+			}
+
+            //read in the next input
+			let c = Keyboard.readChar();
+		}
+        //return the built string
+		return str;
+
+    }   
+
+}
