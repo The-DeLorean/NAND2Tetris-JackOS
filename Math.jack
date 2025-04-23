@@ -24,13 +24,14 @@ class Math {
 		let powersOfTwo[0] = 1;
 		let i = 1;
 		while(i < 16){
+            // current value = 2 * previous
 		    let powersOfTwo[i] = powersOfTwo[i-1] +  powersOfTwo[i-1];
-			let i = i + 1;
+			let i = i + 1; //increment i
 		}        
         return;
     }
 
-    /** Returns the bit value at the given position in a number */
+    /** Helper function that binary place value for a given decimal one */
     function boolean bit(int x, int j) {
         // Check if the j-th bit of x is set
         if ((x & powersOfTwo[j]) = 0) {
@@ -65,7 +66,7 @@ class Math {
         let shiftedX = x;
         let i = 0;
         
-        // Use bit operations with our powers of two array
+        // Use bit operations with the powers of two array
         while (i < n) {
             // If the current bit of y is 1, add shiftedX to the sum
             if (Math.bit(y, i)) {
@@ -82,7 +83,7 @@ class Math {
             let sum = -sum;
         }
         
-        return sum;
+        return sum; // Result
     }
 
     /** Returns the integer part of x / y.
@@ -165,24 +166,34 @@ class Math {
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
 		var int start, end, mid, value;
+
+        // Handle negative case
 		if(x < 0){
 			do Sys.error(4);
 		}
+        // Zero case
 		if(x = 0){
 			return 0;
 		}
 		let start = 0;
 		let end = x;
+
+        //Main sqrt algorithm loop using binary search
 		while(start < end){
+
+            // Check left branch
 			if(start = (end - 1)){
 				return start;
 			}
 			let mid = start + ((end - start)/2);
 			let value = mid * mid;
 			
+            // Check if current node is right
 			if(value = x){
 				return mid;
-			} else {
+			} 
+            //Right branch
+            else {
 				if((value > x) | value < 0){
 					let end = mid;
 				} else {
