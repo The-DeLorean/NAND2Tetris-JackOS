@@ -14,12 +14,12 @@ class Array {
 
     /** Constructs a new Array of the given size. */
     function Array new(int size) {
-        return Memory.alloc(size);
+        return Memory.alloc(size); //allocating the size of memeory needed for the given array
     }
 
     /** Disposes this array. */
     method void dispose() {
-        do Memory.deAlloc(this);
+        do Memory.deAlloc(this);// deallocating the memory of the array instance by calling dealloc(this)
         return;
     }
 }
