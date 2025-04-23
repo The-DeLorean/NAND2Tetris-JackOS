@@ -57,12 +57,12 @@ function Screen.clearScreen 2
     push static 1
     not
     if-goto Screen_3
-    push constant 1
-    neg
+    push constant 0
     pop local 1
     goto Screen_2
 label Screen_3
-    push constant 0
+    push constant 1
+    neg
     pop local 1
 label Screen_2
     push constant 0

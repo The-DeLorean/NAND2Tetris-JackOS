@@ -46,26 +46,26 @@ class Screen {
      * Efficiently performs this by writing directly to all screen memory locations.
      */
     function void clearScreen() {
-        var int i, j; //variables to hold indexes of pixel of the scree
-        var boolean prevColor; //variable to hold the color before the clear screen is called
+        var int i, fillValue;
         
-        let prevColor = x_color ; //storing the color in the previous color
-        let x_color = false; //changing the color to black to be able to clear it
-
-        let i = 0; //Starting i at zero
-
-        while(i<512){ // keeping i within the height of the screen
-            let j = 0; //starting j at 0
-            while( j < 256){// keeping j within the width of the screen
-                do Screen.drawPixel(i,j); // drawing black at the i, j pixel
-                let j = j + 1; //incrementing the j pixel across the width
-            }
-            let i = i + 1; //incrementing i across the height of the screen
+        // Determine fill value based on current color
+        if (x_color) {
+            // Fill with white (all bits set to 0)
+            let fillValue = 0;  // In two's complement, -1 has all bits set to 1
+        } else {
+            // Fill with black (all bits set to 1)
+            let fillValue = -1;
         }
-
-        let x_color = prevColor; // Setting the screen color to be the color that was set before the clear screen method
         
-        return; // returning nothing because the function is void.
+        // The screen is 256 rows × 512 pixels = 8192 words (16-bit)
+        let i = 0;
+        while (i < 8192) {
+            // Set each memory location to the appropriate fill value
+            do Memory.poke(SCREEN + i, fillValue);
+            let i = i + 1;
+        }
+        
+        return;
     }
     
     /** Sets the current color, to be used for all subsequent drawXXX commands.
