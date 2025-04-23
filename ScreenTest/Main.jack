@@ -1,295 +1,36 @@
 // This file is part of www.nand2tetris.org
 // and the book "The Elements of Computing Systems"
 // by Nisan and Schocken, MIT Press.
-// File name: projects/12/Screen.jack
-/**
- * A library of functions for displaying graphics on the screen.
- * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom)
- * of 256 pixels each (indexed 0..255, left to right). The top left pixel on 
- * the screen is indexed (0,0).
- */
-class Screen {
-    static int SCREEN;         // Base address of the screen memory map
-    static boolean x_color;    // Current drawing color: true=black, false=white
-    static Array powersOfTwo;  // Powers of 2 array for bit manipulation
-    
-    /**
-     * Initializes the Screen class.
-     * Sets up the screen memory address, default drawing color,
-     * and initializes the powers of two lookup table.
-     */
-    function void init() {
-        var int i;
-        
-        // Screen memory map starts at this address
-        let SCREEN = 16384;
-        
-        // Default color is black
-        let x_color = true;
-        
-        // Initialize powersOfTwo array with known values for efficient bit manipulation
-        let powersOfTwo = Array.new(16);
-        let powersOfTwo[0] = 1;  // 2^0 = 1
-        
-        // Calculate powers of two: 2^i = 2 * 2^(i-1)
-        let i = 1;
-        while(i < 16) {
-            let powersOfTwo[i] = powersOfTwo[i-1] + powersOfTwo[i-1];
-            let i = i + 1;
-        }
-        
-        return;
-    }
-    
-    /**
-     * Clears the entire screen by setting all pixels to the current color.
-     * Efficiently performs this by writing directly to all screen memory locations.
-     */
-    function void clearScreen() {
-        var int i, fillValue;
-        
-        // Determine fill value based on current color
-        if (x_color) {
-            // Fill with white (all bits set to 0)
-            let fillValue = 0;  // In two's complement, -1 has all bits set to 1
-        } else {
-            // Fill with black (all bits set to 1)
-            let fillValue = -1;
-        }
-        
-        // The screen is 256 rows × 512 pixels = 8192 words (16-bit)
-        let i = 0;
-        while (i < 8192) {
-            // Set each memory location to the appropriate fill value
-            do Memory.poke(SCREEN + i, fillValue);
-            let i = i + 1;
-        }
-        
-        return;
-    }
-    
-    /** Sets the current color, to be used for all subsequent drawXXX commands.
-     *  Black is represented by true, white by false. */
-    function void setColor(boolean color) {
-        let x_color = color;
-        return;
-    }
-    
-	/** Draws the (x,y) pixel, using the current color. */
-    function void drawPixel(int x, int y) {
-        var int address, value, mask;
-        
-        // Bounds checking to prevent drawing outside the screen
-        if((x < 0) | (y < 0) | (x > 511) | (y > 255)) {
-            do Sys.error(7);  // Coordinate out of bounds error
-        }
-        
-        // Calculate memory address and bit mask
-        let address = Screen.getScreenAddress(x, y);
-        let mask = powersOfTwo[Screen.mod(x, 16)];  // Determine which bit within the word
-        
-        // Get current value at the memory location
-        let value = Memory.peek(SCREEN + address);
-        
-        if(x_color) {
-            // For black: OR with the mask to set the bit
-            do Memory.poke(SCREEN + address, value | mask);
-        } else {
-            // For white: AND with NOT mask to clear the bit
-            do Memory.poke(SCREEN + address, value & (~mask));
-        }
-        
-        return;
-    }
-        
-    
-    /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
-	function void drawLine(int x0, int y0, int xf, int yf) {
-        var int a, b, diff, dx, dy, stepA, stepB;
-        
-        // Optimize for special case: horizontal line
-        if(y0 = yf) {
-            if(x0 = xf) {
-                // Single point case
-                do Screen.drawPixel(x0, y0);
-                return;
-            } else {
-                // Horizontal line optimization
-                do Screen.drawHorizontalLine(x0, xf, y0);
-                return;
-            }
-        }
-        
-        // Optimize for special case: vertical line
-        if(x0 = xf) {
-            do Screen.drawVerticalLine(x0, y0, yf);
-            return;
-        }
-        
-        // General line case
-        let dx = xf - x0;
-        let dy = yf - y0;
-        
-        // Determine step direction for x
-        if(dx < 0) {
-            let stepA = -1;
-        } else {
-            let stepA = 1;
-        }
-        
-        // Determine step direction for y
-        if(dy < 0) {
-            let stepB = -1;
-        } else {
-            let stepB = 1;
-        }
-        
-        // Initialize line drawing variables
-        let a = 0;      // x offset from starting point
-        let b = 0;      // y offset from starting point
-        let diff = 0;   // Decision variable
-        
-        // Draw pixels until we reach the endpoint
-        while((Math.abs(x0 + a - xf) > 0) | (Math.abs(y0 + b - yf) > 0)) {
-            do Screen.drawPixel(x0 + a, y0 + b);
-            
-            // Choose which coordinate to increment
-            if(diff < 0) {
-                let a = a + stepA;
-                let diff = diff + Math.abs(dy);
-            } else {
-                let b = b + stepB;
-                let diff = diff - Math.abs(dx);
-            }
-        }
-        
-        return;
-    }
+// File name: projects/12/ScreenTest/Main.jack
 
-	
-    
-    /**
-     * Helper function.
-	 Draws a vertical line from (x,y0) to (x,yf).
-     */
-    function void drawVerticalLine(int x, int y0, int yf) {
-        var int y;
-        
-        // Ensure y0 <= yf for simpler implementation
-        if(y0 > yf) {
-            do Screen.drawVerticalLine(x, yf, y0);
-            return;
-        }
-        
-        // Draw each pixel from top to bottom
-        let y = y0;
-        while((~(y > yf))) {
-            do Screen.drawPixel(x, y);
-            let y = y + 1;
-        }
-        
-        return;
-    }
-    
-    /**
-	 * Helper function.
-     * Draws a horizontal line from (x0,y) to (xf,y).
-     */
-    function void drawHorizontalLine(int x0, int xf, int y) {
-        var int x, address;
-        
-        // Ensure x0 <= xf for simpler implementation
-        if(x0 > xf) {
-            do Screen.drawHorizontalLine(xf, x0, y);
-            return;
-        }
-        
-        let x = x0;
-        while((~(x > xf))) {
-            // Check if we can optimize by drawing a full word (16 pixels)
-            if(((~(Screen.mod(x, 16) = 0))) | ((x + 15) > xf)) {
-                // Can't optimize, draw a single pixel
-                do Screen.drawPixel(x, y);
-                let x = x + 1;
-            } else {
-                // Optimization: We can draw 16 pixels at once with one memory operation
-                let address = Screen.getScreenAddress(x, y);
-                
-                if(x_color) {
-                    // For black, set all 16 bits to 1
-                    do Memory.poke(SCREEN + address, -1);
-                } else {
-                    // For white, set all 16 bits to 0
-                    do Memory.poke(SCREEN + address, 0);
-                }
-                
-                // Skip ahead 16 pixels
-                let x = x + 16;
-            }
-        }
-        
-        return;
-    }
-    
-    
-    /** Draws a filled rectangle whose top left corner is (x1, y1)
-     *  and bottom right corner is (x2,y2), using the current color. */
-    function void drawRectangle(int x1, int y1, int x2, int y2) {
-        var int y;
-        
-        // Ensure y1 <= y2 for simpler implementation
-        if(y1 > y2) {
-            do Screen.drawRectangle(x2, y2, x1, y1);
-            return;
-        }
-        
-        // Draw the rectangle as a series of horizontal lines
-        let y = y1;
-        while((~(y > y2))) {
-            do Screen.drawHorizontalLine(x1, x2, y);
-            let y = y + 1;
-        }
-        
-        return;
-    }
+/** Test program for the OS Screen class. */
+class Main {
 
-	/** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
-    function void drawCircle(int x, int y, int r) {
-        var int dy, dl;
+    /** Draws a sample pictue on the screen using lines and circles. */
+    function void main() {
+    
+        do Screen.drawLine(0,220,511,220);        // base line
+        do Screen.drawRectangle(280,90,410,220);  // house
         
-        // Limit the radius to prevent integer overflow
-        if (r > 181) {
-            do Sys.error(13);  // Radius out of bounds error
-        }
+        do Screen.setColor(false); 
+        do Screen.drawRectangle(350,120,390,219); // door
+        do Screen.drawRectangle(292,120,332,150); // window
         
-        // Draw the circle by scanning horizontal lines
-        let dy = -r;  // Start at the top of the circle
-        while(~(dy > r)) {
-            // Calculate the half-width of the circle at this height
-            // Using the circle equation: x² + y² = r²
-            let dl = Math.sqrt((r * r) - (dy * dy));
-            
-            // Draw a horizontal line across the circle at this height
-            do Screen.drawLine(x - dl, y + dy, x + dl, y + dy);
-            
-            // Move down to the next scan line
-            let dy = dy + 1;
-        }
+        do Screen.setColor(true); 
+        do Screen.drawCircle(360,170,3);          // door handle
+        do Screen.drawLine(280,90,345,35);        // roof
+        do Screen.drawLine(345,35,410,90);        // roof
+
+        do Screen.drawCircle(140,60,30);          // sun
+        do Screen.drawLine(140,26, 140, 6);       
+        do Screen.drawLine(163,35,178,20);       
+        do Screen.drawLine(174,60,194,60);       
+        do Screen.drawLine(163,85,178,100);       
+        do Screen.drawLine(140,94,140,114);       
+        do Screen.drawLine(117,85,102,100);       
+        do Screen.drawLine(106,60,86,60);       
+        do Screen.drawLine(117,35,102,20);       
         
         return;
-    }
-    
-    /**
-	Mod operation
-     */
-    function int mod(int x, int y) {
-        return x - ((x / y) * y);
-    }
-
-	/**
-     * Converts (x,y) pixel coordinates to a memory address offset.     */
-    function int getScreenAddress(int x, int y) {
-        // Each row has 32 words (512/16 pixels), and we divide x by 16 to get word position
-        return (32 * y) + (x / 16);
     }
 }
