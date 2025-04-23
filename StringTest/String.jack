@@ -14,31 +14,30 @@ class String {
     //All the necessary field variables for the string class
     field int max_Length;
     field int length;
-    field Array charecters;
+    field Array characters;
 
     
     /** constructs a new empty string with a maximum length of maxLength
-     *  and initial length of 0. */
+     *  and initial length of 0. */ 
     constructor String new(int maxLength) {
         //This handles if the length is 0 because if it is it doesn't make an array.
-        if(maxLength>0)  //if the length is greater than 0 create an Array of charecters
+        if(maxLength > 0)  //if the length is greater than 0 create an Array of charecters
         {
-            let charecters=Array.new(maxLength); // Creating the new array of charecters
-        }
-        let max_Length=maxLength; //Setting the max length field variable to track the maz length.
-        let length=0; //Setting the length of the string to 0 after initalization
+            let characters = Array.new(maxLength); // Creating the new array of charecters
+        } 
+        let max_Length = maxLength; //Setting the max length field variable to track the maz length.
+
         return this; // Returning the instance of the string object
     }
 
     /** Disposes this string. */
     method void dispose() {
-        if(~(charecters==0))  //checking to make sure that the chareters array is not equal to 0
+        if(~(characters=0))  //checking to make sure that the chareters array is not equal to 0
         {    
-            do charecters.dispose();  // Calling the array dispose function on the array object that holds the charcters
+            do characters.dispose();  // Calling the array dispose function on the array object that holds the charcters
         }
 
         do Memory.deAlloc(this); //Deleting the object instance of the string.
-
         return;  // reutning nothing because of the void function
     }
 
@@ -49,17 +48,17 @@ class String {
 
     /** Returns the character at the j-th location of this string. */
     method char charAt(int j) {
-        //Checking to see if the index is within the current lengt of the string and J is greater than 0
-        if((j < length) & (j<0))
-        {  
-            return characters[j]; //Returning the charecter at the specific part of the string
+        if((j < 0) | (j > length))// If the index is out of range return -1
+        {
+            return -1;
         }
+        return characters[j]; //Returning the charecter at the specific part of the string
     }
 
     /** Sets the character at the j-th location of this string to c. */
     method void setCharAt(int j, char c) {
         //Checking to see if the index is within the current lengt of the string and J is greater than 0
-        if((j < length) & (j<0))
+        if((j < length) & (j > 0))
         {  
             let characters[j]=c; //Returning the charecter at the specific part of the string
         }
@@ -82,6 +81,7 @@ class String {
         if(length > 0){ 
             let length = length - 1; //Subtracting one from the length of the string
         }
+        return;
     }
 
     /** Returns the integer value of this string, 
@@ -89,9 +89,11 @@ class String {
     method int intValue() { 
         var int value; //  A variable to hold the integer value of the string
         var int i; //A varaible to hold the index of the current digit
-        var bool negative; // A flag to hold if the value is negative or not.
+        var boolean negative; // A flag to hold if the value is negative or not.
 
-        if((length > 0 ) & (charecters[0] = 45)){ // Checking to see if it is a negative vale or not by seeing if the first index is the minus sign (-)
+        let value = 0; //Intatilizing the value as 0
+        
+        if((length > 0 ) & (characters[0] = 45)){ // Checking to see if it is a negative vale or not by seeing if the first index is the minus sign (-)
             let negative = true; //if so setting the negative boolean to true
             let i = 1;  //Stating i at 1 because the first value is the minus sign (-)
         }
@@ -100,8 +102,9 @@ class String {
             let i = 0; // starting the index at 0
         }
 
-        while ((i < length) & (charecters[i] > 47) & (characters[i] < 58)){ // Checking to see if the charecters[i] is a digit so using the acii value 48-57 as 0-9
-            let value = (value * 10) + (charecters[i] - 48); // Adding the value * 10 as a multiple of 10 based on how many digits there are. And then adding the charecter - 48 to get the right digit 0-9
+        while ((i < length) & (characters[i] > 47) & (characters[i] < 58)){ // Checking to see if the charecters[i] is a digit so using the acii value 48-57 as 0-9
+            let value = (value * 10) + (characters[i] - 48); // Adding the value * 10 as a multiple of 10 based on how many digits there are. And then adding the charecter - 48 to get the right digit 0-9
+            let i = i + 1; //Incrememnting i by 1 each run.
         }
 
         if(negative){// Checking to see if the negative flag is set or not
@@ -114,30 +117,36 @@ class String {
 
     /** Sets this string to hold a representation of the given value. */
     method void setInt(int val) {
-        var int value; //Variable to hold the value passsed in as a method.
+        var int value;// Variable to hold the value of the string
         var int temp_int; // A temp integer that holds the value as it is being decomposed
-        var int mod; //A variable to hold the modulus for the integer decomposition
-        var char int_char// A checarecter variable to hold the charecter representation of each digit.
+        var int amount_of_tens; //A variable to hold the modulus for the integer decomposition
+
+        var char int_char;// A checarecter variable to hold the charecter representation of each digit.
         let length = 0; // Starting the string length as 0.
+        let value = 0 ;// starting the value as 0
 
         if (val < 0)// Checking to see if the integer passed in is negative
         {
-            let value = -val; //Making the value positive but storing the negative sign
+            let value = val * -1; //Making the value positive 
             do appendChar(45); // Addingthe negative sign in front of the number in the string.
         }
         else{
-            let value=val; //storing the value that came in as a variable in the method.as positive.
+            let value = val; //storing the value that came in as a variable in the method.as positive.
         }
 
-        while (value > 0){// A while loop that runs until the whole integer passed in has been converted to a string representation.
-            let temp_int= value / 10; // Dividing the number by 10
-            let mod = value - (tmep_int * 10);// Finding out the modulus 
-            let int_char= mod + 48; //Making the charecter representation of the integer to add to the string
+        let temp_int = value; //storing the value in a temp int
+        let amount_of_tens = 1; //starting out as 1 because there will be at least one digit
 
-            do appendChar(int_char); //Adding the charecter representation of the integer to the string being constructed
-            let value = temp_int; // Progressing the value to the next integer
+        while ((temp_int / 10)> 0){// counting amount of 10s in the int passed in
+            let temp_int = temp_int / 10; // keeping track of the divisions of 10 counting down
+            let amount_of_tens = amount_of_tens * 10; // Keeping track of the 10s counting up
         }
 
+        while (amount_of_tens > 0){// if there is a 10 left
+            do appendChar((value / amount_of_tens) + 48); //adding the value of the cahrecter from fron to back highest to smallest take care of length
+            let value = value - (amount_of_tens * (value / amount_of_tens)); // subtracting the front index of the value of the integer passed in
+            let amount_of_tens = amount_of_tens /10; // moving down the amount of 10s.
+        }
         return; //Returning nothing because the method is void.
     }
 
